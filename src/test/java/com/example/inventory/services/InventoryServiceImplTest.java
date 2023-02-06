@@ -64,10 +64,10 @@ class InventoryServiceImplTest {
     }
 
     protected ItemDto constructItemDto(String name) {
-        return new ItemDto(name);
+        return new ItemDto(name, "some category");
     }
 
     protected Item constructItem(String id, String name) {
-        return new Item(id, name);
+        return new Item(id, name, "some category");
     }
 }

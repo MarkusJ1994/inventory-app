@@ -63,11 +63,11 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     static Item itemDtoToItem(Optional<String> id, ItemDto itemDto) {
-        return new Item(id.orElse(itemDto.getName()), itemDto.getName());
+        return new Item(id.orElse(itemDto.getName()), itemDto.getName(), itemDto.getCategory());
     }
 
     static ItemDto itemToItemDto(Item item) {
-        return new ItemDto(item.getName());
+        return new ItemDto(item.getName(), item.getCategory());
     }
 
 }
