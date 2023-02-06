@@ -35,7 +35,7 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     public ItemDto addItem(ItemDto itemDto) {
-        Item item = itemDtoToItem(itemDto);
+        Item item = itemDtoToItem(Optional.empty(), itemDto);
         if (itemRepository.findById(item.getId()).isEmpty()) {
             return itemToItemDto(itemRepository.save(item));
         } else {
@@ -45,21 +45,25 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     public ItemDto updateItem(String id, ItemDto itemDto) {
-        Item item = itemDtoToItem(itemDto);
-        if (itemRepository.findById(item.getId()).isPresent()) {
+        Item item = itemDtoToItem(Optional.of(id), itemDto);
+        if (itemRepository.findById(id).isPresent()) {
             return itemToItemDto(itemRepository.save(item));
         } else {
-            throw new NotFoundException(String.format("Item with the id [%s] already exist", item.getId()));
+            throw new NotFoundException(String.format("Item with the id [%s] does not exist", id));
         }
     }
 
     @Override
     public void removeItem(String id) {
-        itemRepository.deleteById(id);
+        if (itemRepository.findById(id).isPresent()) {
+            itemRepository.deleteById(id);
+        } else {
+            throw new NotFoundException(String.format("Item with the id [%s] does not exist", id));
+        }
     }
 
-    static Item itemDtoToItem(ItemDto itemDto) {
-        return new Item(itemDto.getName(), itemDto.getName());
+    static Item itemDtoToItem(Optional<String> id, ItemDto itemDto) {
+        return new Item(id.orElse(itemDto.getName()), itemDto.getName());
     }
 
     static ItemDto itemToItemDto(Item item) {

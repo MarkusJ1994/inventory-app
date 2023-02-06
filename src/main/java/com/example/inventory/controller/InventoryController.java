@@ -30,7 +30,7 @@ public class InventoryController {
         return ResponseEntity.ok(inventoryService.addItem(itemDto));
     }
 
-    @PutMapping
+    @PutMapping("/{id}")
     public ResponseEntity<ItemDto> updateItem(@PathVariable String id, @RequestBody ItemDto itemDto) {
         return ResponseEntity.ok(inventoryService.updateItem(id, itemDto));
     }
