@@ -5,9 +5,11 @@ import ItemBox from "./ItemBox";
 import {QueryKeys} from "../queryKeys";
 
 function Inventory(): JSX.Element {
+
     const {isLoading, error, data} = useQuery<Item[], Error>([QueryKeys.ITEMS], () =>
-        fetch('/inventory').then(res =>
-            res.json()
+        fetch('/inventory').then(res => {
+                return res.json()
+            }
         )
     )
 

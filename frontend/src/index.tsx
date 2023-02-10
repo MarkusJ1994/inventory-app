@@ -3,9 +3,9 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
 import {QueryClient, QueryClientProvider} from "react-query";
-import InventoryLayout from "./Inventory/InventoryLayout";
+import App from "./App";
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({})
 
 const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement
@@ -13,7 +13,7 @@ const root = ReactDOM.createRoot(
 root.render(
     <React.StrictMode>
         <QueryClientProvider client={queryClient}>
-            <InventoryLayout/>
+            <App/>
         </QueryClientProvider>
     </React.StrictMode>
 );
