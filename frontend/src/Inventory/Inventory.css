@@ -1,0 +1,36 @@
+.inventory-layout {
+    padding: 1rem;
+}
+
+.button-row {
+    display: flex;
+    flex-direction: row;
+    margin: 1rem 0 1rem 0;
+}
+
+.item-form {
+    margin-top: 1rem;
+}
+
+.item-form-field {
+    margin-top: 0.5rem;
+}
+
+.item-form-input {
+    border: 0px;
+    background: transparent;
+    font-family: monospace;
+}
+
+.items {
+    display: flex;
+    font-family: monospace;
+    gap: 0.5rem
+}
+
+.item {
+    display: flex;
+    border: 1px solid;
+    padding: 1rem;
+    flex-direction: column;
+}

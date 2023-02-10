@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class ItemDto {
 
+    private String id;
     private String name;
 
     private String category;

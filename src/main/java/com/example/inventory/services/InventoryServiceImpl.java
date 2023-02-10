@@ -67,7 +67,7 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     static ItemDto itemToItemDto(Item item) {
-        return new ItemDto(item.getName(), item.getCategory());
+        return new ItemDto(item.getId(), item.getName(), item.getCategory());
     }
 
 }
