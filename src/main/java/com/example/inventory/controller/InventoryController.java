@@ -1,6 +1,8 @@
 package com.example.inventory.controller;
 
+import com.example.inventory.domain.EventDriver;
 import com.example.inventory.domain.dto.ItemDto;
+import com.example.inventory.domain.events.AddItemCommand;
 import com.example.inventory.services.InventoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,7 @@ import java.util.List;
 public class InventoryController {
 
     private final InventoryService inventoryService;
+    private final EventDriver eventDriver;
 
     @GetMapping("/{id}")
     public ResponseEntity<ItemDto> getItem(@PathVariable String id) {
@@ -27,7 +30,7 @@ public class InventoryController {
 
     @PostMapping
     public ResponseEntity<ItemDto> addItem(@RequestBody ItemDto itemDto) {
-        return ResponseEntity.ok(inventoryService.addItem(itemDto));
+        return ResponseEntity.ok(eventDriver.applyCommand(new AddItemCommand(itemDto)));
     }
 
     @PutMapping("/{id}")
