@@ -25,7 +25,7 @@ public class EventDriver {
             case AddItemCommand addItemCommand -> {
                 ItemDto itemDto = inventoryService.addItem(addItemCommand.getPayload());
                 //Log the event
-                eventLogRepository.save(new EventLog(UUID.randomUUID(), LocalDateTime.now(), addItemCommand.getCommand(), addItemCommand.getPayload()));
+                eventLogRepository.save(new EventLog(UUID.randomUUID(), LocalDateTime.now(), "Markus", null, addItemCommand.getCommand(), addItemCommand.getPayload()));
                 return (T) itemDto;
             }
             default -> throw new IllegalStateException("Unexpected value: " + event);

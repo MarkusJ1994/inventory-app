@@ -2,6 +2,7 @@ import Inventory from "./Inventory";
 import {Item} from "./types";
 import ItemBox from "./ItemBox";
 import {useState} from "react";
+import LogColumnLayout from "../LogColumn/LogColumnLayout";
 
 function InventoryLayout() {
 
@@ -13,19 +14,22 @@ function InventoryLayout() {
         })
     }
 
-    return <div className={"inventory-layout"}>
-        <div className={"button-row"}>
-            <button onClick={onAddClicked} disabled={addItem != undefined}>Add</button>
+    return <div className={"inventory-layout row"}>
+        <div className={"col"} style={{maxWidth: "70%", marginRight: "1rem"}}>
+            <div className={"button-row"}>
+                <button onClick={onAddClicked} disabled={addItem != undefined}>Add</button>
+            </div>
+            {
+                addItem != undefined ?
+                    <div className={"items"} style={{marginBottom: "1rem"}}>
+                        <ItemBox item={addItem} editMode={true} isAddMode={true}
+                                 onAddSuccess={() => setAddItem(undefined)}/>
+                    </div>
+                    : null
+            }
+            <div><Inventory/></div>
         </div>
-        {
-            addItem != undefined ?
-                <div className={"items"} style={{marginBottom: "1rem"}}>
-                    <ItemBox item={addItem} editMode={true} isAddMode={true}
-                             onAddSuccess={() => setAddItem(undefined)}/>
-                </div>
-                : null
-        }
-        <div><Inventory/></div>
+        <div className={"col log-column"}><LogColumnLayout/></div>
     </div>
 }
 

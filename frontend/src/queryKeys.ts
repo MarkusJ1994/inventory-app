@@ -1,3 +1,4 @@
 export enum QueryKeys {
-    ITEMS
+    ITEMS = "ITEMS",
+    EVENT_LOGS = "EVENT_LOGS"
 }
