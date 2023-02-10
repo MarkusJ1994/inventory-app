@@ -6,9 +6,15 @@ import {QueryKeys} from "../queryKeys";
 
 interface ItemProps {
     item: Item
+    editMode?: boolean
+    isAddMode?: boolean
+    onAddSuccess?: () => void
 }
 
-function ItemBox({item}: ItemProps): JSX.Element {
+function ItemBox({
+                     item, editMode = false, isAddMode = false, onAddSuccess = () => {
+    }
+                 }: ItemProps): JSX.Element {
 
     let queryClient = useQueryClient();
 
@@ -37,7 +43,32 @@ function ItemBox({item}: ItemProps): JSX.Element {
             queryClient.setQueryData<Item[] | undefined>([QueryKeys.ITEMS], (items) => {
                 if (items != undefined) {
                     const idxToRemove = items.findIndex(item => item.id === removedId);
-                    return items.splice(idxToRemove, 1)
+                    items.splice(idxToRemove, 1)
+                    return items
+                }
+                return items
+            })
+        }
+    })
+
+    const add = useMutation<Item, Error, Item>({
+        mutationFn: (itemToAdd) => {
+            return fetch('/inventory', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(itemToAdd)
+            }).then(res => {
+                onAddSuccess()
+                return res.json()
+            })
+        },
+        onSuccess: (addedItem) => {
+            queryClient.setQueryData<Item[] | undefined>([QueryKeys.ITEMS], (items) => {
+                if (items != undefined) {
+                    items.push(addedItem)
+                    return items
                 }
                 return items
             })
@@ -46,7 +77,7 @@ function ItemBox({item}: ItemProps): JSX.Element {
 
     const [itemState, setItemState] = useState(item)
 
-    const [isEditMode, setIsEditMode] = useState(false)
+    const [isEditMode, setIsEditMode] = useState(editMode)
 
     const onEdit = () => {
         setIsEditMode(!isEditMode)
@@ -57,28 +88,40 @@ function ItemBox({item}: ItemProps): JSX.Element {
     }
 
     const onRemove = () => {
-        remove.mutate(itemState.id)
+        if (itemState.id != null) {
+            remove.mutate(itemState.id)
+        }
+    }
+
+    const onAdd = () => {
+        add.mutate(itemState)
     }
 
     return <div className={"item"}>
         {
             update.isLoading ? <div>Saving...</div> : <>
-                <div>
+
+                {(isAddMode ? <div>
+                    <button onClick={onAdd} type={"submit"}>{"Add"}</button>
+                </div> : <div>
                     {
                         isEditMode ?
-                            <button onClick={onSave}>{"Save"}</button>
+                            <button onClick={onSave} type={"submit"}>{"Save"}</button>
                             : <>
-                                <button style={{marginRight: "0.5rem"}} onClick={onEdit}>{"Edit"}</button>
+                                <button style={{marginRight: "0.5rem"}} onClick={onEdit}
+                                        type={"button"}>{"Edit"}</button>
                                 <button onClick={onRemove}>Remove</button>
                             </>
                     }
-                </div>
+                </div>)}
+
                 <form className={"item-form"}>
-                    <TextField label={"Name"} name={"name"} disabled={!isEditMode} value={item.name}
-                               onChange={(val) => setItemState({
-                                   ...itemState, name: val
-                               })}/>
-                    <TextField label={"Category"} name={"category"} disabled={!isEditMode} value={item.category}
+                    <TextField label={"Name"} name={"name"} disabled={!isEditMode} value={itemState.name}
+                               onChange={(val) =>
+                                   setItemState({
+                                       ...itemState, name: val
+                                   })}/>
+                    <TextField label={"Category"} name={"category"} disabled={!isEditMode} value={itemState.category}
                                onChange={(val) => setItemState({
                                    ...itemState, category: val
                                })}/>

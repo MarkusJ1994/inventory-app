@@ -7,12 +7,17 @@ interface TextFieldProps {
 }
 
 function TextField({label, name, value, disabled, onChange}: TextFieldProps): JSX.Element {
+
     return (
         <div className={"item-form-field"}>
             <label htmlFor={name}>{label}: </label>
             <input className={"item-form-input"} style={{borderBottom: disabled ? "0px" : "1px solid"}} type={"text"}
                    id={name}
-                   disabled={disabled} value={value} onChange={(evt) => onChange(evt.target.value)}/><br/>
+                   disabled={disabled} value={value}
+                   onChange={(evt) => {
+                       console.log(evt.currentTarget.value)
+                       onChange(evt.currentTarget.value)
+                   }}/><br/>
         </div>
     )
 }

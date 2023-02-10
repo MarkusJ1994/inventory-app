@@ -12,7 +12,7 @@ function Inventory(): JSX.Element {
     )
 
     const renderItems = (items: Item[]) => {
-        return items.map(item => <ItemBox item={item}/>)
+        return items.map((item) => <ItemBox item={item} key={item.id}/>)
     }
 
     if (isLoading) return <div>"Loading..."</div>
