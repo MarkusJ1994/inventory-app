@@ -1,7 +1,6 @@
 package com.example.inventory.services;
 
 import com.example.inventory.data.Item;
-import com.example.inventory.data.ItemRepository;
 import com.example.inventory.domain.dto.AddItemDto;
 import com.example.inventory.domain.dto.ItemDto;
 import com.example.inventory.domain.dto.UpdateItemDto;
@@ -14,16 +13,20 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.example.inventory.services.InventoryService.itemDtoToItem;
+import static com.example.inventory.services.InventoryService.itemToItemDto;
+
 @Service
 @RequiredArgsConstructor
 public class InventoryServiceImpl implements InventoryService {
 
-    private final ItemRepository itemRepository;
-
+    private Optional<Item> findItem(String id, List<Item> state) {
+        return state.stream().filter(item -> item.getId().equals(id)).findFirst();
+    }
 
     @Override
-    public ItemDto findItemById(String id) {
-        Optional<Item> foundItem = itemRepository.findById(id);
+    public ItemDto findItemById(String id, List<Item> state) {
+        Optional<Item> foundItem = findItem(id, state);
         if (foundItem.isPresent()) {
             return itemToItemDto(foundItem.get());
         } else {
@@ -32,46 +35,35 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    public List<ItemDto> findItems() {
-        return itemRepository.findAll().stream().map(InventoryServiceImpl::itemToItemDto).toList();
-    }
-
-    @Override
-    public ItemDto addItem(AddItemDto itemDto, Optional<String> id) {
+    public void addItem(AddItemDto itemDto, Optional<String> id, List<Item> state) {
         Item item = itemDtoToItem(itemDto.toItemDto());
         item.setId(id.orElse(UUID.randomUUID().toString()));
-        if (itemRepository.findById(item.getId()).isEmpty()) {
-            return itemToItemDto(itemRepository.save(item));
+        if (findItem(item.getId(), state).isEmpty()) {
+            state.add(item);
         } else {
             throw new DuplicateException(String.format("Item with the id [%s] already exist", item.getId()));
         }
     }
 
     @Override
-    public ItemDto updateItem(String id, UpdateItemDto itemDto) {
+    public void updateItem(String id, UpdateItemDto itemDto, List<Item> state) {
         Item item = itemDtoToItem(itemDto.toItemDto(id));
-        if (itemRepository.findById(id).isPresent()) {
-            return itemToItemDto(itemRepository.save(item));
+        Optional<Item> foundItem = findItem(id, state);
+        if (foundItem.isPresent()) {
+            state.set(state.indexOf(foundItem.get()), item);
         } else {
             throw new NotFoundException(String.format("Item with the id [%s] does not exist", id));
         }
     }
 
     @Override
-    public void removeItem(String id) {
-        if (itemRepository.findById(id).isPresent()) {
-            itemRepository.deleteById(id);
+    public void removeItem(String id, List<Item> state) {
+        Optional<Item> foundItem = findItem(id, state);
+        if (foundItem.isPresent()) {
+            state.remove(foundItem.get());
         } else {
             throw new NotFoundException(String.format("Item with the id [%s] does not exist", id));
         }
-    }
-
-    static Item itemDtoToItem(ItemDto itemDto) {
-        return new Item(itemDto.getId(), itemDto.getName(), itemDto.getCategory());
-    }
-
-    static ItemDto itemToItemDto(Item item) {
-        return new ItemDto(item.getId(), item.getName(), item.getCategory());
     }
 
 }

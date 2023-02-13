@@ -1,5 +1,6 @@
 package com.example.inventory.domain.events;
 
+import com.example.inventory.domain.EventCommands;
 import com.example.inventory.domain.dto.ItemDto;
 import com.example.inventory.domain.dto.UpdateItemDto;
 
@@ -12,7 +13,7 @@ public record UpdateItemCommand(
 
     @Override
     public String getCommand() {
-        return "UPDATE_ITEM";
+        return EventCommands.UPDATE_ITEM.name();
     }
 
     public record UpdateItemCommandPayload(String id, UpdateItemDto updateItemDto) {

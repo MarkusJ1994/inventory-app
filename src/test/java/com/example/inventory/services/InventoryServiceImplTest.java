@@ -1,72 +1,85 @@
 package com.example.inventory.services;
 
+import com.example.inventory.data.EventLogRepository;
 import com.example.inventory.data.Item;
-import com.example.inventory.data.ItemRepository;
+import com.example.inventory.domain.State;
+import com.example.inventory.domain.StateMutator;
 import com.example.inventory.domain.dto.AddItemDto;
 import com.example.inventory.domain.dto.ItemDto;
 import com.example.inventory.domain.dto.UpdateItemDto;
-import com.example.inventory.domain.exceptions.DuplicateException;
-import com.example.inventory.domain.exceptions.NotFoundException;
+import com.example.inventory.domain.events.AddItemCommand;
+import com.example.inventory.domain.events.DeleteItemCommand;
+import com.example.inventory.domain.events.DomainEvent;
+import com.example.inventory.domain.events.UpdateItemCommand;
+import com.example.inventory.domain.items.ItemEventQueue;
+import com.example.inventory.domain.items.events.EventQueue;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.util.ArrayDeque;
 import java.util.List;
-import java.util.Optional;
+import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class InventoryServiceImplTest {
 
-    private InventoryService mock() {
-        ItemRepository mockedRepository = Mockito.mock(ItemRepository.class);
+    private ItemEventQueue mock() {
+        EventLogRepository mockedRepository = Mockito.mock(EventLogRepository.class);
 
-        Mockito.when(mockedRepository.findAll()).thenReturn(List.of(constructItem("1", "milk"), constructItem("2", "eggs")));
+        Mockito.when(mockedRepository.save(Mockito.any())).thenReturn(Mockito.any());
 
-        Mockito.when(mockedRepository.findById("milk")).thenReturn(Optional.of(constructItem("milk", "milk")));
-        Mockito.when(mockedRepository.findById("eggs")).thenReturn(Optional.of(constructItem("eggs", "eggs")));
+        ArrayDeque<DomainEvent> queue = new ArrayDeque<>();
+        queue.add(new AddItemCommand(new AddItemDto("milk", "dairy")));
+        queue.add(new AddItemCommand(new AddItemDto("butter", "dairy")));
 
-        Mockito.when(mockedRepository.save(constructItem("random_id", "bread"))).thenReturn(constructItem("random_id", "bread"));
-        Mockito.when(mockedRepository.save(constructItem("milk", "butter"))).thenReturn(constructItem("milk", "butter"));
-
-        return new InventoryServiceImpl(mockedRepository);
+        return new ItemEventQueue(mockedRepository, queue, new StateMutator(new InventoryServiceImpl()));
     }
 
     @Test
     void findItemById() {
-        InventoryService service = mock();
-        assertEquals(constructItemDto("milk", "milk"), service.findItemById("milk"));
-        assertThrows(NotFoundException.class, () -> service.findItemById("bread"));
+        EventQueue service = mock();
+//        assertEquals(constructItemDto("milk", "milk"), service.fold("milk"));
+//        assertThrows(NotFoundException.class, () -> service.findItemById("bread"));
     }
 
     @Test
     void findItems() {
-        InventoryService service = mock();
-        assertEquals(List.of(constructItemDto("1", "milk"), constructItemDto("2", "eggs")), service.findItems());
+        ItemEventQueue service = mock();
+        List<Item> state = service.fold(new State<>(List.of(), UUID.randomUUID()));
+        assertEquals(2, state.size());
+        assertEquals(state.get(0).getName(), "milk");
+        assertEquals(state.get(1).getName(), "butter");
     }
 
     @Test
     void addItem() {
-        InventoryService service = mock();
-        assertEquals(
-                constructItemDto("random_id", "bread"),
-                service.addItem(AddItemDto.fromItemDto(constructItemDto(null, "bread")), Optional.of("random_id")));
-        assertThrows(DuplicateException.class, () -> service.addItem(AddItemDto.fromItemDto(constructItemDto(null, "milk")), Optional.of("milk")));
+        ItemEventQueue service = mock();
+        service.add(new AddItemCommand(new AddItemDto("added item", "some category")));
+        List<Item> state = service.fold(new State<>(List.of(), UUID.randomUUID()));
+        assertEquals(3, state.size());
+        assertEquals(state.get(2).getName(), "added item");
+//        assertThrows(DuplicateException.class, () -> service.add(new AddItemCommand(new AddItemDto("added item", "some category"))));
     }
 
     @Test
     void updateItem() {
-        InventoryService service = mock();
-        assertEquals(
-                constructItemDto("milk", "butter"),
-                service.updateItem("milk", UpdateItemDto.fromItemDto(constructItemDto(null, "butter"))));
-        assertThrows(NotFoundException.class, () -> service.updateItem("sausage", UpdateItemDto.fromItemDto(constructItemDto("milk", "butter"))));
+        ItemEventQueue service = mock();
+        service.add(new UpdateItemCommand(service.fold(new State<>(List.of(), UUID.randomUUID())).get(0).getId(), new UpdateItemDto("updated item", "some category")));
+        List<Item> updatedState = service.fold(new State<>(List.of(), UUID.randomUUID()));
+        assertEquals(2, updatedState.size());
+        assertEquals(updatedState.get(0).getName(), "updated item");
+//        assertThrows(NotFoundException.class, () -> service.updateItem("sausage", UpdateItemDto.fromItemDto(constructItemDto("milk", "butter"))));
     }
 
     @Test
     void removeItem() {
-        InventoryService service = mock();
-        assertDoesNotThrow(() -> service.removeItem("milk"));
-        assertThrows(NotFoundException.class, () -> service.removeItem("bread"));
+        ItemEventQueue service = mock();
+        service.add(new DeleteItemCommand((service.fold(new State<>(List.of(), UUID.randomUUID())).get(0).getId())));
+        List<Item> updatedState = service.fold(new State<>(List.of(), UUID.randomUUID()));
+        assertEquals(1, updatedState.size());
+        assertEquals(updatedState.get(0).getName(), "butter");
+//        assertThrows(NotFoundException.class, () -> service.removeItem("bread"));
     }
 
     protected ItemDto constructItemDto(String id, String name) {

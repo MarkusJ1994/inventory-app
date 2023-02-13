@@ -1,6 +1,7 @@
 package com.example.inventory.domain.events;
 
-public interface DomainEvent<T, U> {
+//Add more stuff here, like reason/cause?
+public sealed interface DomainEvent<T, U> permits AddItemCommand, DeleteItemCommand, UpdateItemCommand {
 
     String getCommand();
 

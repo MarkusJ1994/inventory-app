@@ -1,5 +1,6 @@
 package com.example.inventory.domain.events;
 
+import com.example.inventory.domain.EventCommands;
 import com.example.inventory.domain.dto.AddItemDto;
 import com.example.inventory.domain.dto.ItemDto;
 
@@ -7,6 +8,6 @@ public record AddItemCommand(AddItemDto payload) implements DomainEvent<AddItemD
 
     @Override
     public String getCommand() {
-        return "ADD_ITEM";
+        return EventCommands.ADD_ITEM.name();
     }
 }
