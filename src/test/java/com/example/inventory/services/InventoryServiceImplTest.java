@@ -2,7 +2,9 @@ package com.example.inventory.services;
 
 import com.example.inventory.data.Item;
 import com.example.inventory.data.ItemRepository;
+import com.example.inventory.domain.dto.AddItemDto;
 import com.example.inventory.domain.dto.ItemDto;
+import com.example.inventory.domain.dto.UpdateItemDto;
 import com.example.inventory.domain.exceptions.DuplicateException;
 import com.example.inventory.domain.exceptions.NotFoundException;
 import org.junit.jupiter.api.Test;
@@ -23,7 +25,7 @@ class InventoryServiceImplTest {
         Mockito.when(mockedRepository.findById("milk")).thenReturn(Optional.of(constructItem("milk", "milk")));
         Mockito.when(mockedRepository.findById("eggs")).thenReturn(Optional.of(constructItem("eggs", "eggs")));
 
-        Mockito.when(mockedRepository.save(constructItem("bread", "bread"))).thenReturn(constructItem("bread", "bread"));
+        Mockito.when(mockedRepository.save(constructItem("random_id", "bread"))).thenReturn(constructItem("random_id", "bread"));
         Mockito.when(mockedRepository.save(constructItem("milk", "butter"))).thenReturn(constructItem("milk", "butter"));
 
         return new InventoryServiceImpl(mockedRepository);
@@ -32,28 +34,32 @@ class InventoryServiceImplTest {
     @Test
     void findItemById() {
         InventoryService service = mock();
-        assertEquals(constructItemDto("milk"), service.findItemById("milk"));
+        assertEquals(constructItemDto("milk", "milk"), service.findItemById("milk"));
         assertThrows(NotFoundException.class, () -> service.findItemById("bread"));
     }
 
     @Test
     void findItems() {
         InventoryService service = mock();
-        assertEquals(List.of(constructItemDto("milk"), constructItemDto("eggs")), service.findItems());
+        assertEquals(List.of(constructItemDto("1", "milk"), constructItemDto("2", "eggs")), service.findItems());
     }
 
     @Test
     void addItem() {
         InventoryService service = mock();
-        assertEquals(constructItemDto("bread"), service.addItem(constructItemDto("bread")));
-        assertThrows(DuplicateException.class, () -> service.addItem(constructItemDto("milk")));
+        assertEquals(
+                constructItemDto("random_id", "bread"),
+                service.addItem(AddItemDto.fromItemDto(constructItemDto(null, "bread")), Optional.of("random_id")));
+        assertThrows(DuplicateException.class, () -> service.addItem(AddItemDto.fromItemDto(constructItemDto(null, "milk")), Optional.of("milk")));
     }
 
     @Test
     void updateItem() {
         InventoryService service = mock();
-        assertEquals(constructItemDto("butter"), service.updateItem("milk", constructItemDto("butter")));
-        assertThrows(NotFoundException.class, () -> service.updateItem("sausage", constructItemDto("butter")));
+        assertEquals(
+                constructItemDto("milk", "butter"),
+                service.updateItem("milk", UpdateItemDto.fromItemDto(constructItemDto(null, "butter"))));
+        assertThrows(NotFoundException.class, () -> service.updateItem("sausage", UpdateItemDto.fromItemDto(constructItemDto("milk", "butter"))));
     }
 
     @Test
@@ -63,8 +69,8 @@ class InventoryServiceImplTest {
         assertThrows(NotFoundException.class, () -> service.removeItem("bread"));
     }
 
-    protected ItemDto constructItemDto(String name) {
-        return new ItemDto(name, "some category");
+    protected ItemDto constructItemDto(String id, String name) {
+        return new ItemDto(id, name, "some category");
     }
 
     protected Item constructItem(String id, String name) {

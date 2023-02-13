@@ -5,6 +5,7 @@
 .log-column {
     border-left: 1px solid;
     height: 100vh;
+    padding: 1rem;
     overflow: auto;
 }
 
@@ -30,6 +31,7 @@
 
 .items {
     display: flex;
+    flex-wrap: wrap;
     font-family: monospace;
     gap: 0.5rem
 }

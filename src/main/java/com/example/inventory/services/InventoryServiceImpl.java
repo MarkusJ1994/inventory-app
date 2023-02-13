@@ -2,7 +2,9 @@ package com.example.inventory.services;
 
 import com.example.inventory.data.Item;
 import com.example.inventory.data.ItemRepository;
+import com.example.inventory.domain.dto.AddItemDto;
 import com.example.inventory.domain.dto.ItemDto;
+import com.example.inventory.domain.dto.UpdateItemDto;
 import com.example.inventory.domain.exceptions.DuplicateException;
 import com.example.inventory.domain.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -34,8 +37,9 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    public ItemDto addItem(ItemDto itemDto) {
-        Item item = itemDtoToItem(Optional.empty(), itemDto);
+    public ItemDto addItem(AddItemDto itemDto, Optional<String> id) {
+        Item item = itemDtoToItem(itemDto.toItemDto());
+        item.setId(id.orElse(UUID.randomUUID().toString()));
         if (itemRepository.findById(item.getId()).isEmpty()) {
             return itemToItemDto(itemRepository.save(item));
         } else {
@@ -44,8 +48,8 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    public ItemDto updateItem(String id, ItemDto itemDto) {
-        Item item = itemDtoToItem(Optional.of(id), itemDto);
+    public ItemDto updateItem(String id, UpdateItemDto itemDto) {
+        Item item = itemDtoToItem(itemDto.toItemDto(id));
         if (itemRepository.findById(id).isPresent()) {
             return itemToItemDto(itemRepository.save(item));
         } else {
@@ -62,8 +66,8 @@ public class InventoryServiceImpl implements InventoryService {
         }
     }
 
-    static Item itemDtoToItem(Optional<String> id, ItemDto itemDto) {
-        return new Item(id.orElse(itemDto.getName()), itemDto.getName(), itemDto.getCategory());
+    static Item itemDtoToItem(ItemDto itemDto) {
+        return new Item(itemDto.getId(), itemDto.getName(), itemDto.getCategory());
     }
 
     static ItemDto itemToItemDto(Item item) {

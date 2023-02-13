@@ -1,8 +1,12 @@
 package com.example.inventory.controller;
 
 import com.example.inventory.domain.EventDriver;
+import com.example.inventory.domain.dto.AddItemDto;
 import com.example.inventory.domain.dto.ItemDto;
+import com.example.inventory.domain.dto.UpdateItemDto;
 import com.example.inventory.domain.events.AddItemCommand;
+import com.example.inventory.domain.events.DeleteItemCommand;
+import com.example.inventory.domain.events.UpdateItemCommand;
 import com.example.inventory.services.InventoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -29,18 +33,18 @@ public class InventoryController {
     }
 
     @PostMapping
-    public ResponseEntity<ItemDto> addItem(@RequestBody ItemDto itemDto) {
+    public ResponseEntity<ItemDto> addItem(@RequestBody AddItemDto itemDto) {
         return ResponseEntity.ok(eventDriver.applyCommand(new AddItemCommand(itemDto)));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ItemDto> updateItem(@PathVariable String id, @RequestBody ItemDto itemDto) {
-        return ResponseEntity.ok(inventoryService.updateItem(id, itemDto));
+    public ResponseEntity<ItemDto> updateItem(@PathVariable String id, @RequestBody UpdateItemDto itemDto) {
+        return ResponseEntity.ok(eventDriver.applyCommand(new UpdateItemCommand(id, itemDto)));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteItem(@PathVariable String id) {
-        inventoryService.removeItem(id);
+        eventDriver.applyCommand(new DeleteItemCommand(id));
         return ResponseEntity.ok().build();
     }
 
