@@ -1,14 +1,17 @@
 package com.example.inventory.services;
 
 import com.example.inventory.data.EventLogRepository;
+import com.example.inventory.domain.exceptions.NotFoundException;
 import com.example.inventory.domain.items.data.Item;
 import com.example.inventory.domain.items.aggregator.ItemEventAggregator;
 import com.example.inventory.domain.items.dto.AddItemDto;
 import com.example.inventory.domain.items.dto.ItemDto;
+import com.example.inventory.domain.items.dto.UpdateItemDto;
 import com.example.inventory.domain.items.events.AddItemCommand;
 import com.example.inventory.domain.events.DomainEvent;
 import com.example.inventory.domain.items.events.ItemEventQueue;
 import com.example.inventory.domain.events.EventQueueBase;
+import com.example.inventory.domain.items.events.UpdateItemCommand;
 import com.example.inventory.domain.items.services.InventoryServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -17,6 +20,7 @@ import java.util.ArrayDeque;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class InventoryServiceImplTest {
 
@@ -35,6 +39,7 @@ class InventoryServiceImplTest {
     @Test
     void findItemById() {
         EventQueueBase service = mock();
+//        service.fold()
 //        assertEquals(constructItemDto("milk", "milk"), service.fold("milk"));
 //        assertThrows(NotFoundException.class, () -> service.findItemById("bread"));
     }
@@ -61,7 +66,8 @@ class InventoryServiceImplTest {
     @Test
     void updateItem() {
         ItemEventQueue service = mock();
-//        service.add(new UpdateItemCommand(service.fold());
+        List<Item> state = service.fold();
+        service.add(new UpdateItemCommand(state.get(0).getId(), new UpdateItemDto("updated item", "dairy")));
         List<Item> updatedState = service.fold();
         assertEquals(2, updatedState.size());
         assertEquals(updatedState.get(0).getName(), "updated item");
