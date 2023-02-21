@@ -1,5 +1,6 @@
 package com.example.inventory.domain.items.events;
 
+import com.example.inventory.aggregator.Step;
 import com.example.inventory.data.EventLogRepository;
 import com.example.inventory.domain.items.data.Item;
 import com.example.inventory.domain.items.aggregator.ItemEventAggregator;
@@ -12,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class ItemEventQueue extends EventQueueBase<Item> {
+public class ItemEventQueue extends EventQueueBase<List<Item>> {
 
     private final ItemEventAggregator itemEventAggregator;
 
@@ -22,12 +23,13 @@ public class ItemEventQueue extends EventQueueBase<Item> {
     }
 
     @Override
-    public List<Item> fold() {
-        List<Item> items = new ArrayList<>();
+    public List<Step<List<Item>>> fold() {
+        List<Step<List<Item>>> steps = new ArrayList<>();
         for (DomainEvent command : this) {
-            items = itemEventAggregator.aggregateStateFromEvents(command, items);
+            Step step = itemEventAggregator.aggregateStateFromEvents(command, steps);
+            steps.add(step);
         }
-        return items;
+        return steps;
     }
 
 }

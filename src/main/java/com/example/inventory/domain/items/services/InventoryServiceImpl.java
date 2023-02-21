@@ -1,17 +1,18 @@
 package com.example.inventory.domain.items.services;
 
+import com.example.inventory.aggregator.Result;
+import com.example.inventory.aggregator.Step;
 import com.example.inventory.domain.items.data.Item;
 import com.example.inventory.domain.items.dto.AddItemDto;
 import com.example.inventory.domain.items.dto.ItemDto;
 import com.example.inventory.domain.items.dto.UpdateItemDto;
-import com.example.inventory.domain.exceptions.DuplicateException;
 import com.example.inventory.domain.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import static com.example.inventory.domain.items.services.InventoryService.itemDtoToItem;
 import static com.example.inventory.domain.items.services.InventoryService.itemToItemDto;
@@ -35,34 +36,46 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    public void addItem(AddItemDto itemDto, Optional<String> id, List<Item> state) {
+    public Step<List<Item>> addItem(AddItemDto itemDto, Optional<String> id, Optional<Step<List<Item>>> previousStep) {
         Item item = itemDtoToItem(itemDto.toItemDto());
-        item.setId(id.orElse(UUID.randomUUID().toString()));
-        if (findItem(item.getId(), state).isEmpty()) {
-            state.add(item);
+        //Id can not be auto generated, since replaying a log would then yield non-deterministic results
+        item.setId(id.orElse(itemDto.getName()));
+
+        List<Item> currentState = previousStep.isPresent() ? previousStep.get().state() : new ArrayList<>();
+        if (findItem(item.getId(), currentState).isEmpty()) {
+            List<Item> updatedItems = new ArrayList<>(currentState);
+            updatedItems.add(item);
+            return new Step<>(updatedItems, Result.ok());
         } else {
-            throw new DuplicateException(String.format("Item with the id [%s] already exist", item.getId()));
+            return new Step<>(currentState, Result.failure(String.format("Item with the id [%s] already exist", item.getId())));
         }
     }
 
     @Override
-    public void updateItem(String id, UpdateItemDto itemDto, List<Item> state) {
+    public Step<List<Item>> updateItem(String id, UpdateItemDto itemDto, Optional<Step<List<Item>>> previousStep) {
         Item item = itemDtoToItem(itemDto.toItemDto(id));
-        Optional<Item> foundItem = findItem(id, state);
+
+        List<Item> currentState = previousStep.isPresent() ? previousStep.get().state() : new ArrayList<>();
+        Optional<Item> foundItem = findItem(id, currentState);
         if (foundItem.isPresent()) {
-            state.set(state.indexOf(foundItem.get()), item);
+            List<Item> updatedItems = new ArrayList<>(currentState);
+            updatedItems.set(currentState.indexOf(foundItem.get()), item);
+            return new Step<>(updatedItems, Result.ok());
         } else {
-            throw new NotFoundException(String.format("Item with the id [%s] does not exist", id));
+            return new Step<>(currentState, Result.failure(String.format("Item with the id [%s] does not exist", id)));
         }
     }
 
     @Override
-    public void removeItem(String id, List<Item> state) {
-        Optional<Item> foundItem = findItem(id, state);
+    public Step<List<Item>> removeItem(String id, Optional<Step<List<Item>>> previousStep) {
+        List<Item> currentState = previousStep.isPresent() ? previousStep.get().state() : new ArrayList<>();
+        Optional<Item> foundItem = findItem(id, currentState);
         if (foundItem.isPresent()) {
-            state.remove(foundItem.get());
+            List<Item> updatedItems = new ArrayList<>(currentState);
+            updatedItems.remove(foundItem.get());
+            return new Step<>(updatedItems, Result.ok());
         } else {
-            throw new NotFoundException(String.format("Item with the id [%s] does not exist", id));
+            return new Step<>(currentState, Result.failure(String.format("Item with the id [%s] does not exist", id)));
         }
     }
 

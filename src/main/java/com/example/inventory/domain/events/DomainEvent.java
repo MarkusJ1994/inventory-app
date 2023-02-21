@@ -5,7 +5,7 @@ import com.example.inventory.domain.items.events.DeleteItemCommand;
 import com.example.inventory.domain.items.events.UpdateItemCommand;
 
 //Add more stuff here, like reason/cause?
-public sealed interface DomainEvent<T, U> permits AddItemCommand, DeleteItemCommand, UpdateItemCommand {
+public sealed interface DomainEvent<T> permits AddItemCommand, DeleteItemCommand, UpdateItemCommand {
 
     String getCommand();
 

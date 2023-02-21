@@ -4,8 +4,8 @@ import com.example.inventory.domain.events.DomainEvent;
 
 import java.util.List;
 
-public interface Aggregator {
+public interface Aggregator<S> {
 
-    <T, U> List<U> aggregateStateFromEvents(DomainEvent<T, U> event, List<U> state);
+    <T> Step<S> aggregateStateFromEvents(DomainEvent<T> event, List<Step<S>> steps);
 
 }
