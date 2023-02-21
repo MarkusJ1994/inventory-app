@@ -1,9 +1,9 @@
-package com.example.inventory.services;
+package com.example.inventory.domain.items.services;
 
-import com.example.inventory.data.Item;
-import com.example.inventory.domain.dto.AddItemDto;
-import com.example.inventory.domain.dto.ItemDto;
-import com.example.inventory.domain.dto.UpdateItemDto;
+import com.example.inventory.domain.items.data.Item;
+import com.example.inventory.domain.items.dto.AddItemDto;
+import com.example.inventory.domain.items.dto.ItemDto;
+import com.example.inventory.domain.items.dto.UpdateItemDto;
 import com.example.inventory.domain.exceptions.DuplicateException;
 import com.example.inventory.domain.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -13,8 +13,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.example.inventory.services.InventoryService.itemDtoToItem;
-import static com.example.inventory.services.InventoryService.itemToItemDto;
+import static com.example.inventory.domain.items.services.InventoryService.itemDtoToItem;
+import static com.example.inventory.domain.items.services.InventoryService.itemToItemDto;
 
 @Service
 @RequiredArgsConstructor

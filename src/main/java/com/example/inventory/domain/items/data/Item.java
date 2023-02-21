@@ -1,4 +1,4 @@
-package com.example.inventory.data;
+package com.example.inventory.domain.items.data;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,11 +1,12 @@
-package com.example.inventory.domain;
+package com.example.inventory.domain.items.aggregator;
 
-import com.example.inventory.data.Item;
-import com.example.inventory.domain.events.AddItemCommand;
-import com.example.inventory.domain.events.DeleteItemCommand;
+import com.example.inventory.aggregator.Aggregator;
+import com.example.inventory.domain.items.data.Item;
+import com.example.inventory.domain.items.events.AddItemCommand;
+import com.example.inventory.domain.items.events.DeleteItemCommand;
 import com.example.inventory.domain.events.DomainEvent;
-import com.example.inventory.domain.events.UpdateItemCommand;
-import com.example.inventory.services.InventoryService;
+import com.example.inventory.domain.items.events.UpdateItemCommand;
+import com.example.inventory.domain.items.services.InventoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -15,12 +16,12 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 @Component
-public class StateMutator {
+public class ItemEventAggregator implements Aggregator {
 
     private final InventoryService inventoryService;
 
     /**
-     * Given a state and an event, performs a mutation. This should be the only source of mutations of state
+     * This should be the only source of mutations of state
      *
      * @param event
      * @param state
@@ -28,7 +29,8 @@ public class StateMutator {
      * @param <U>
      * @return
      */
-    public <T, U> List<U> applyMutationCommand(DomainEvent<T, U> event, List<U> state) {
+    @Override
+    public <T, U> List<U> aggregateStateFromEvents(DomainEvent<T, U> event, List<U> state) {
         return switch (event) {
             case AddItemCommand addItemCommand -> {
                 ArrayList<U> stateCopy = new ArrayList<>(state);

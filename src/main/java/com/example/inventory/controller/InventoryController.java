@@ -1,23 +1,18 @@
 package com.example.inventory.controller;
 
-import com.example.inventory.data.Item;
-import com.example.inventory.domain.State;
-import com.example.inventory.domain.dto.AddItemDto;
-import com.example.inventory.domain.dto.ItemDto;
-import com.example.inventory.domain.dto.UpdateItemDto;
-import com.example.inventory.domain.events.AddItemCommand;
-import com.example.inventory.domain.events.DeleteItemCommand;
-import com.example.inventory.domain.events.UpdateItemCommand;
-import com.example.inventory.domain.items.ItemEventQueue;
-import com.example.inventory.services.InventoryService;
-import com.mongodb.lang.Nullable;
+import com.example.inventory.domain.items.dto.AddItemDto;
+import com.example.inventory.domain.items.dto.ItemDto;
+import com.example.inventory.domain.items.dto.UpdateItemDto;
+import com.example.inventory.domain.items.events.AddItemCommand;
+import com.example.inventory.domain.items.events.DeleteItemCommand;
+import com.example.inventory.domain.items.events.UpdateItemCommand;
+import com.example.inventory.domain.items.events.ItemEventQueue;
+import com.example.inventory.domain.items.services.InventoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("inventory")
@@ -32,10 +27,9 @@ public class InventoryController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ItemDto>> getItems(@Nullable @RequestBody State<List<ItemDto>> state) {
-        List<Item> parsedStateList = state != null ? state.state().stream().map(InventoryService::itemDtoToItem).toList() : new ArrayList<>();
+    public ResponseEntity<List<ItemDto>> getItems() {
         return ResponseEntity.ok(
-                eventQueue.fold(new State<>(parsedStateList, UUID.randomUUID()))
+                eventQueue.fold()
                         .stream()
                         .map(InventoryService::itemToItemDto)
                         .toList());

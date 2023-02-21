@@ -1,8 +1,8 @@
-package com.example.inventory.domain.events;
+package com.example.inventory.domain.items.events;
 
-import com.example.inventory.domain.EventCommands;
-import com.example.inventory.domain.dto.ItemDto;
-import com.example.inventory.domain.dto.UpdateItemDto;
+import com.example.inventory.domain.events.DomainEvent;
+import com.example.inventory.domain.items.dto.ItemDto;
+import com.example.inventory.domain.items.dto.UpdateItemDto;
 
 public record UpdateItemCommand(
         UpdateItemCommand.UpdateItemCommandPayload payload) implements DomainEvent<UpdateItemCommand.UpdateItemCommandPayload, ItemDto> {
@@ -13,7 +13,7 @@ public record UpdateItemCommand(
 
     @Override
     public String getCommand() {
-        return EventCommands.UPDATE_ITEM.name();
+        return ItemEventCommands.UPDATE_ITEM.name();
     }
 
     public record UpdateItemCommandPayload(String id, UpdateItemDto updateItemDto) {

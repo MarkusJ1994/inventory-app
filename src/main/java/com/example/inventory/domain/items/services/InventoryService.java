@@ -1,9 +1,9 @@
-package com.example.inventory.services;
+package com.example.inventory.domain.items.services;
 
-import com.example.inventory.data.Item;
-import com.example.inventory.domain.dto.AddItemDto;
-import com.example.inventory.domain.dto.ItemDto;
-import com.example.inventory.domain.dto.UpdateItemDto;
+import com.example.inventory.domain.items.data.Item;
+import com.example.inventory.domain.items.dto.AddItemDto;
+import com.example.inventory.domain.items.dto.ItemDto;
+import com.example.inventory.domain.items.dto.UpdateItemDto;
 
 import java.util.List;
 import java.util.Optional;

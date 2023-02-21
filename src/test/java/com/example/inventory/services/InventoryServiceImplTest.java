@@ -1,24 +1,20 @@
 package com.example.inventory.services;
 
 import com.example.inventory.data.EventLogRepository;
-import com.example.inventory.data.Item;
-import com.example.inventory.domain.State;
-import com.example.inventory.domain.StateMutator;
-import com.example.inventory.domain.dto.AddItemDto;
-import com.example.inventory.domain.dto.ItemDto;
-import com.example.inventory.domain.dto.UpdateItemDto;
-import com.example.inventory.domain.events.AddItemCommand;
-import com.example.inventory.domain.events.DeleteItemCommand;
+import com.example.inventory.domain.items.data.Item;
+import com.example.inventory.domain.items.aggregator.ItemEventAggregator;
+import com.example.inventory.domain.items.dto.AddItemDto;
+import com.example.inventory.domain.items.dto.ItemDto;
+import com.example.inventory.domain.items.events.AddItemCommand;
 import com.example.inventory.domain.events.DomainEvent;
-import com.example.inventory.domain.events.UpdateItemCommand;
-import com.example.inventory.domain.items.ItemEventQueue;
-import com.example.inventory.domain.items.events.EventQueue;
+import com.example.inventory.domain.items.events.ItemEventQueue;
+import com.example.inventory.domain.events.EventQueueBase;
+import com.example.inventory.domain.items.services.InventoryServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.ArrayDeque;
 import java.util.List;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -33,12 +29,12 @@ class InventoryServiceImplTest {
         queue.add(new AddItemCommand(new AddItemDto("milk", "dairy")));
         queue.add(new AddItemCommand(new AddItemDto("butter", "dairy")));
 
-        return new ItemEventQueue(mockedRepository, queue, new StateMutator(new InventoryServiceImpl()));
+        return new ItemEventQueue(mockedRepository, queue, new ItemEventAggregator(new InventoryServiceImpl()));
     }
 
     @Test
     void findItemById() {
-        EventQueue service = mock();
+        EventQueueBase service = mock();
 //        assertEquals(constructItemDto("milk", "milk"), service.fold("milk"));
 //        assertThrows(NotFoundException.class, () -> service.findItemById("bread"));
     }
@@ -46,7 +42,7 @@ class InventoryServiceImplTest {
     @Test
     void findItems() {
         ItemEventQueue service = mock();
-        List<Item> state = service.fold(new State<>(List.of(), UUID.randomUUID()));
+        List<Item> state = service.fold();
         assertEquals(2, state.size());
         assertEquals(state.get(0).getName(), "milk");
         assertEquals(state.get(1).getName(), "butter");
@@ -56,7 +52,7 @@ class InventoryServiceImplTest {
     void addItem() {
         ItemEventQueue service = mock();
         service.add(new AddItemCommand(new AddItemDto("added item", "some category")));
-        List<Item> state = service.fold(new State<>(List.of(), UUID.randomUUID()));
+        List<Item> state = service.fold();
         assertEquals(3, state.size());
         assertEquals(state.get(2).getName(), "added item");
 //        assertThrows(DuplicateException.class, () -> service.add(new AddItemCommand(new AddItemDto("added item", "some category"))));
@@ -65,8 +61,8 @@ class InventoryServiceImplTest {
     @Test
     void updateItem() {
         ItemEventQueue service = mock();
-        service.add(new UpdateItemCommand(service.fold(new State<>(List.of(), UUID.randomUUID())).get(0).getId(), new UpdateItemDto("updated item", "some category")));
-        List<Item> updatedState = service.fold(new State<>(List.of(), UUID.randomUUID()));
+//        service.add(new UpdateItemCommand(service.fold());
+        List<Item> updatedState = service.fold();
         assertEquals(2, updatedState.size());
         assertEquals(updatedState.get(0).getName(), "updated item");
 //        assertThrows(NotFoundException.class, () -> service.updateItem("sausage", UpdateItemDto.fromItemDto(constructItemDto("milk", "butter"))));
@@ -75,8 +71,8 @@ class InventoryServiceImplTest {
     @Test
     void removeItem() {
         ItemEventQueue service = mock();
-        service.add(new DeleteItemCommand((service.fold(new State<>(List.of(), UUID.randomUUID())).get(0).getId())));
-        List<Item> updatedState = service.fold(new State<>(List.of(), UUID.randomUUID()));
+//        service.add(new DeleteItemCommand(());
+        List<Item> updatedState = service.fold();
         assertEquals(1, updatedState.size());
         assertEquals(updatedState.get(0).getName(), "butter");
 //        assertThrows(NotFoundException.class, () -> service.removeItem("bread"));
