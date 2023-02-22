@@ -1,7 +1,7 @@
 version: '3'
 services:
   mongodb:
-    image: mongo:5.0
+    image: mongo:latest
     environment:
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=admin
@@ -11,4 +11,4 @@ services:
     volumes:
       - /Users/markusjohansson/dev/docker-volumes/inventory
 
-  # TODO: Add spring app
+  # TODO: Add spring appx§

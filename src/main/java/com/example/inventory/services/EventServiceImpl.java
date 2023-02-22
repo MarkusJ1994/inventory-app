@@ -2,12 +2,12 @@ package com.example.inventory.services;
 
 import com.example.inventory.data.EventLog;
 import com.example.inventory.data.EventLogRepository;
-import com.example.inventory.domain.items.events.ItemEventCommands;
+import com.example.inventory.domain.events.DomainEvent;
 import com.example.inventory.domain.items.dto.AddItemDto;
 import com.example.inventory.domain.items.dto.ItemDto;
 import com.example.inventory.domain.items.events.AddItemCommand;
 import com.example.inventory.domain.items.events.DeleteItemCommand;
-import com.example.inventory.domain.events.DomainEvent;
+import com.example.inventory.domain.items.events.ItemEventCommands;
 import com.example.inventory.domain.items.events.UpdateItemCommand;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,7 +27,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<DomainEvent> getDomainEvents() {
-        return getEvents().stream().map(this::logToDomainEvent).toList();
+        return getEvents().stream().map(EventServiceImpl::logToDomainEvent).toList();
     }
 
     @Override
@@ -40,7 +40,7 @@ public class EventServiceImpl implements EventService {
         return List.of();
     }
 
-    private DomainEvent logToDomainEvent(EventLog eventLog) {
+    public static DomainEvent logToDomainEvent(EventLog eventLog) {
         return switch (ItemEventCommands.valueOf(eventLog.getCommand())) {
             case ADD_ITEM -> new AddItemCommand((AddItemDto) eventLog.getData());
             case UPDATE_ITEM -> new UpdateItemCommand((UpdateItemCommand.UpdateItemCommandPayload) eventLog.getData());

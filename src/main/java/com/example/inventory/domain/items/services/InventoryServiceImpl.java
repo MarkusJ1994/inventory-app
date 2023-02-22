@@ -2,11 +2,12 @@ package com.example.inventory.domain.items.services;
 
 import com.example.inventory.aggregator.Result;
 import com.example.inventory.aggregator.Step;
+import com.example.inventory.domain.events.DomainEvent;
+import com.example.inventory.domain.exceptions.NotFoundException;
 import com.example.inventory.domain.items.data.Item;
 import com.example.inventory.domain.items.dto.AddItemDto;
 import com.example.inventory.domain.items.dto.ItemDto;
 import com.example.inventory.domain.items.dto.UpdateItemDto;
-import com.example.inventory.domain.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +37,7 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    public Step<List<Item>> addItem(AddItemDto itemDto, Optional<String> id, Optional<Step<List<Item>>> previousStep) {
+    public InventoryMutationResult addItem(AddItemDto itemDto, Optional<String> id, Optional<Step<List<Item>>> previousStep) {
         Item item = itemDtoToItem(itemDto.toItemDto());
         //Id can not be auto generated, since replaying a log would then yield non-deterministic results
         item.setId(id.orElse(itemDto.getName()));
@@ -45,14 +46,14 @@ public class InventoryServiceImpl implements InventoryService {
         if (findItem(item.getId(), currentState).isEmpty()) {
             List<Item> updatedItems = new ArrayList<>(currentState);
             updatedItems.add(item);
-            return new Step<>(updatedItems, Result.ok());
+            return new InventoryMutationResult(updatedItems, Result.ok());
         } else {
-            return new Step<>(currentState, Result.failure(String.format("Item with the id [%s] already exist", item.getId())));
+            return new InventoryMutationResult(currentState, Result.failure(String.format("Item with the id [%s] already exist", item.getId())));
         }
     }
 
     @Override
-    public Step<List<Item>> updateItem(String id, UpdateItemDto itemDto, Optional<Step<List<Item>>> previousStep) {
+    public InventoryMutationResult updateItem(String id, UpdateItemDto itemDto, Optional<Step<List<Item>>> previousStep) {
         Item item = itemDtoToItem(itemDto.toItemDto(id));
 
         List<Item> currentState = previousStep.isPresent() ? previousStep.get().state() : new ArrayList<>();
@@ -60,23 +61,31 @@ public class InventoryServiceImpl implements InventoryService {
         if (foundItem.isPresent()) {
             List<Item> updatedItems = new ArrayList<>(currentState);
             updatedItems.set(currentState.indexOf(foundItem.get()), item);
-            return new Step<>(updatedItems, Result.ok());
+            return new InventoryMutationResult(updatedItems, Result.ok());
         } else {
-            return new Step<>(currentState, Result.failure(String.format("Item with the id [%s] does not exist", id)));
+            return new InventoryMutationResult(currentState, Result.failure(String.format("Item with the id [%s] does not exist", id)));
         }
     }
 
     @Override
-    public Step<List<Item>> removeItem(String id, Optional<Step<List<Item>>> previousStep) {
+    public InventoryMutationResult removeItem(String id, Optional<Step<List<Item>>> previousStep) {
         List<Item> currentState = previousStep.isPresent() ? previousStep.get().state() : new ArrayList<>();
         Optional<Item> foundItem = findItem(id, currentState);
         if (foundItem.isPresent()) {
             List<Item> updatedItems = new ArrayList<>(currentState);
             updatedItems.remove(foundItem.get());
-            return new Step<>(updatedItems, Result.ok());
+            return new InventoryMutationResult(updatedItems, Result.ok());
         } else {
-            return new Step<>(currentState, Result.failure(String.format("Item with the id [%s] does not exist", id)));
+            return new InventoryMutationResult(currentState, Result.failure(String.format("Item with the id [%s] does not exist", id)));
         }
+    }
+
+    public record InventoryMutationResult(List<Item> state, Result result) {
+
+        public Step<List<Item>> toStep(DomainEvent event) {
+            return new Step<>(event, result, state);
+        }
+
     }
 
 }

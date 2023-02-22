@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,8 +27,9 @@ class InventoryServiceImplTest {
 
     private ItemEventQueue mock() {
         EventLogRepository mockedRepository = Mockito.mock(EventLogRepository.class);
-        
+
         Mockito.when(mockedRepository.save(Mockito.any())).thenReturn(new EventLog());
+        Mockito.when(mockedRepository.findAll()).thenReturn(new ArrayList<>());
 
         ArrayDeque<DomainEvent> queue = new ArrayDeque<>();
         queue.add(new AddItemCommand(new AddItemDto("milk", "dairy")));

@@ -13,11 +13,12 @@ public interface InventoryService {
 
     ItemDto findItemById(String id, List<Item> state);
 
-    Step<List<Item>> addItem(AddItemDto itemDto, Optional<String> id, Optional<Step<List<Item>>> previousStep);
+    //TODO: Send null and then treat it in the impl instead?
+    InventoryServiceImpl.InventoryMutationResult addItem(AddItemDto itemDto, Optional<String> id, Optional<Step<List<Item>>> previousStep);
 
-    Step<List<Item>> updateItem(String id, UpdateItemDto itemDto, Optional<Step<List<Item>>> previousStep);
+    InventoryServiceImpl.InventoryMutationResult updateItem(String id, UpdateItemDto itemDto, Optional<Step<List<Item>>> previousStep);
 
-    Step<List<Item>> removeItem(String id, Optional<Step<List<Item>>> previousStep);
+    InventoryServiceImpl.InventoryMutationResult removeItem(String id, Optional<Step<List<Item>>> previousStep);
 
     static Item itemDtoToItem(ItemDto itemDto) {
         return new Item(itemDto.getId(), itemDto.getName(), itemDto.getCategory());

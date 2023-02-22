@@ -37,7 +37,7 @@ public class InventoryController {
                                     .stream()
                                     .map(InventoryService::itemToItemDto)
                                     .toList();
-                            return new Step<>(state, step.result());
+                            return new Step<>(step.event(), step.result(), state);
                         })
                         .toList());
     }
