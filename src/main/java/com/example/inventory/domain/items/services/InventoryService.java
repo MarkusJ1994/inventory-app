@@ -12,17 +12,9 @@ import java.util.Optional;
 
 public interface InventoryService {
 
-    ItemDto findItemById(String id, List<Item> state);
-
-    InventoryMutationResult addItem(AddItemDto itemDto, Optional<String> id);
-
     InventoryMutationResult addItem(AddItemDto itemDto, Optional<String> id, Step<List<Item>> previousStep);
 
-    InventoryMutationResult updateItem(String id, UpdateItemDto itemDto);
-
     InventoryMutationResult updateItem(String id, UpdateItemDto itemDto, Step<List<Item>> previousStep);
-
-    InventoryMutationResult removeItem(String id);
 
     InventoryMutationResult removeItem(String id, Step<List<Item>> previousStep);
 

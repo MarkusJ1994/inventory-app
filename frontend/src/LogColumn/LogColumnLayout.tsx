@@ -1,13 +1,7 @@
 import {useQuery} from "react-query";
 import {QueryKeys} from "../queryKeys";
-
-interface EventLog {
-    timestamp: string
-    user: string
-    reason: string | null
-    command: string
-    data: any
-}
+import {EventLog} from "./types";
+import LogEntry from "./LogEntry";
 
 function LogColumnLayout(): JSX.Element {
 
@@ -24,7 +18,7 @@ function LogColumnLayout(): JSX.Element {
 
     const renderLogs = () => {
         if (query.data != undefined) {
-            return query.data.map((log, idx) => <pre style={{background: "lightgrey"}} key={idx}>{JSON.stringify(log, undefined, 2)}</pre>)
+            return query.data.map((log, idx) => <LogEntry idx={idx} log={log}/>)
         }
     }
 

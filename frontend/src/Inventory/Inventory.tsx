@@ -7,7 +7,7 @@ import {QueryKeys} from "../queryKeys";
 function Inventory(): JSX.Element {
 
     const {refetch, isLoading, error, data} = useQuery<Item[], Error>([QueryKeys.ITEMS], () =>
-        fetch('/inventory').then(res => {
+        fetch('/inventory/fold').then(res => {
                 return res.json()
             }
         ),
@@ -19,7 +19,7 @@ function Inventory(): JSX.Element {
     }
 
     return <>
-        <button onClick={() => refetch()} style={{marginBottom: "1rem"}}>Load item state</button>
+        <button onClick={() => refetch()} style={{marginBottom: "1rem"}}>Load current item state</button>
         { isLoading ? <div>"Loading..."</div> :
             error ? <div>"Error occurred: " + error.message</div> :
                 <div className={"items"}>

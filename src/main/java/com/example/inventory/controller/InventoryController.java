@@ -24,15 +24,10 @@ public class InventoryController {
 
     private final ItemEventQueue eventQueue;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ItemDto> getItem(@PathVariable String id) {
-        return ResponseEntity.ok().build();
-    }
-
-    @GetMapping
-    public ResponseEntity<List<ItemDto>> getItems() {
+    @GetMapping(value = {"/fold", "/fold/{eventId}"})
+    public ResponseEntity<List<ItemDto>> getItems(@PathVariable(required = false) String eventId) {
         //last step in chain is current state
-        Step<List<Item>> lastStep = eventQueue.fold()
+        Step<List<Item>> lastStep = eventQueue.fold(eventId)
                 .stream()
                 .reduce((f, s) -> s).orElse(null);
 
@@ -42,7 +37,7 @@ public class InventoryController {
                         : new ArrayList<>());
     }
 
-    @GetMapping("/aggregation")
+    @GetMapping("/aggregate/steps")
     public ResponseEntity<List<Step<List<ItemDto>>>> getAggregation() {
         return ResponseEntity.ok(
                 eventQueue.fold()

@@ -5,7 +5,7 @@ import {Aggregation, Item} from "./types";
 function ItemAggregationLayout(): JSX.Element {
 
     const query = useQuery<Aggregation<Item[], Item>[], Error>([QueryKeys.ITEM_AGGREGATION], () =>
-        fetch('/inventory/aggregation').then(res => {
+        fetch('/inventory/aggregate/steps').then(res => {
                 return res.json()
             }
         )

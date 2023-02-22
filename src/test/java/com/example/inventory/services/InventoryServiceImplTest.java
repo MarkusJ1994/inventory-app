@@ -31,18 +31,10 @@ class InventoryServiceImplTest {
         Mockito.when(mockedRepository.findAll()).thenReturn(new ArrayList<>());
 
         ArrayDeque<DomainEvent> queue = new ArrayDeque<>();
-        queue.add(new AddItemCommand(new AddItemDto("milk", "dairy")));
-        queue.add(new AddItemCommand(new AddItemDto("butter", "dairy")));
+        queue.add(new AddItemCommand("eventId1", new AddItemDto("milk", "dairy")));
+        queue.add(new AddItemCommand("eventId2", new AddItemDto("butter", "dairy")));
 
         return new ItemEventQueue(mockedRepository, queue, new ItemEventAggregator(new InventoryServiceImpl()));
-    }
-
-    @Test
-    void findItemById() {
-//        EventQueueBase service = mock();
-//        service.fold()
-//        assertEquals(constructItemDto("milk", "milk"), service.fold("milk"));
-//        assertThrows(NotFoundException.class, () -> service.findItemById("bread"));
     }
 
     @Test
