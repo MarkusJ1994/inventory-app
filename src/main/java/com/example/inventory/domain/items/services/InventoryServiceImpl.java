@@ -37,12 +37,17 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    public InventoryMutationResult addItem(AddItemDto itemDto, Optional<String> id, Optional<Step<List<Item>>> previousStep) {
+    public InventoryMutationResult addItem(AddItemDto itemDto, Optional<String> id) {
+        return addItem(itemDto, id, null);
+    }
+
+    @Override
+    public InventoryMutationResult addItem(AddItemDto itemDto, Optional<String> id, Step<List<Item>> previousStep) {
         Item item = itemDtoToItem(itemDto.toItemDto());
         //Id can not be auto generated, since replaying a log would then yield non-deterministic results
         item.setId(id.orElse(itemDto.getName()));
 
-        List<Item> currentState = previousStep.isPresent() ? previousStep.get().state() : new ArrayList<>();
+        List<Item> currentState = previousStep != null ? previousStep.state() : new ArrayList<>();
         if (findItem(item.getId(), currentState).isEmpty()) {
             List<Item> updatedItems = new ArrayList<>(currentState);
             updatedItems.add(item);
@@ -53,10 +58,15 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    public InventoryMutationResult updateItem(String id, UpdateItemDto itemDto, Optional<Step<List<Item>>> previousStep) {
+    public InventoryMutationResult updateItem(String id, UpdateItemDto itemDto) {
+        return updateItem(id, itemDto, null);
+    }
+
+    @Override
+    public InventoryMutationResult updateItem(String id, UpdateItemDto itemDto, Step<List<Item>> previousStep) {
         Item item = itemDtoToItem(itemDto.toItemDto(id));
 
-        List<Item> currentState = previousStep.isPresent() ? previousStep.get().state() : new ArrayList<>();
+        List<Item> currentState = previousStep != null ? previousStep.state() : new ArrayList<>();
         Optional<Item> foundItem = findItem(id, currentState);
         if (foundItem.isPresent()) {
             List<Item> updatedItems = new ArrayList<>(currentState);
@@ -68,8 +78,14 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    public InventoryMutationResult removeItem(String id, Optional<Step<List<Item>>> previousStep) {
-        List<Item> currentState = previousStep.isPresent() ? previousStep.get().state() : new ArrayList<>();
+    public InventoryMutationResult removeItem(String id) {
+        return removeItem(id, null);
+    }
+
+
+    @Override
+    public InventoryMutationResult removeItem(String id, Step<List<Item>> previousStep) {
+        List<Item> currentState = previousStep != null ? previousStep.state() : new ArrayList<>();
         Optional<Item> foundItem = findItem(id, currentState);
         if (foundItem.isPresent()) {
             List<Item> updatedItems = new ArrayList<>(currentState);

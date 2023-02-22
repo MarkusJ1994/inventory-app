@@ -7,7 +7,6 @@ import com.example.inventory.domain.events.DomainEvent;
 import com.example.inventory.domain.items.aggregator.ItemEventAggregator;
 import com.example.inventory.domain.items.data.Item;
 import com.example.inventory.domain.items.dto.AddItemDto;
-import com.example.inventory.domain.items.dto.ItemDto;
 import com.example.inventory.domain.items.dto.UpdateItemDto;
 import com.example.inventory.domain.items.events.AddItemCommand;
 import com.example.inventory.domain.items.events.DeleteItemCommand;
@@ -21,7 +20,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class InventoryServiceImplTest {
 
@@ -51,7 +50,7 @@ class InventoryServiceImplTest {
         ItemEventQueue service = mock();
 
         List<Step<List<Item>>> steps = service.fold();
-        List<Item> state = Step.getMostRecentStep(steps).get().state();
+        List<Item> state = Step.getMostRecentStep(steps).state();
 
         assertEquals(2, state.size());
         assertEquals("milk", state.get(0).getName());
@@ -70,11 +69,11 @@ class InventoryServiceImplTest {
 
         assertEquals(3, successStep.state().size());
         assertEquals("added item", successStep.state().get(2).getName());
-        assertEquals(true, successStep.result().isResult());
+        assertTrue(successStep.result().isResult());
 
         Step<List<Item>> failStep = steps.get(3);
 
-        assertEquals(false, failStep.result().isResult());
+        assertFalse(failStep.result().isResult());
     }
 
     @Test
@@ -82,7 +81,7 @@ class InventoryServiceImplTest {
         ItemEventQueue service = mock();
 
         List<Step<List<Item>>> steps = service.fold();
-        List<Item> state = Step.getMostRecentStep(steps).get().state();
+        List<Item> state = Step.getMostRecentStep(steps).state();
         service.add(new UpdateItemCommand(state.get(0).getId(), new UpdateItemDto("updated item", "dairy")));
         service.add(new UpdateItemCommand("non existing id", new UpdateItemDto("another updated item", "dairy")));
 
@@ -91,11 +90,11 @@ class InventoryServiceImplTest {
 
         assertEquals(2, successStep.state().size());
         assertEquals("updated item", successStep.state().get(0).getName());
-        assertEquals(true, successStep.result().isResult());
+        assertTrue(successStep.result().isResult());
 
         Step<List<Item>> failStep = steps.get(3);
 
-        assertEquals(false, failStep.result().isResult());
+        assertFalse(failStep.result().isResult());
     }
 
     @Test
@@ -103,7 +102,7 @@ class InventoryServiceImplTest {
         ItemEventQueue service = mock();
 
         List<Step<List<Item>>> steps = service.fold();
-        List<Item> state = Step.getMostRecentStep(steps).get().state();
+        List<Item> state = Step.getMostRecentStep(steps).state();
         service.add(new DeleteItemCommand((state.get(0).getId())));
         service.add(new DeleteItemCommand("non existing id"));
 
@@ -111,18 +110,11 @@ class InventoryServiceImplTest {
         Step<List<Item>> successStep = steps.get(2);
 
         assertEquals(1, successStep.state().size());
-        assertEquals(true, successStep.result().isResult());
+        assertTrue(successStep.result().isResult());
 
         Step<List<Item>> failStep = steps.get(3);
 
-        assertEquals(false, failStep.result().isResult());
+        assertFalse(failStep.result().isResult());
     }
 
-    protected ItemDto constructItemDto(String id, String name) {
-        return new ItemDto(id, name, "some category");
-    }
-
-    protected Item constructItem(String id, String name) {
-        return new Item(id, name, "some category");
-    }
 }
