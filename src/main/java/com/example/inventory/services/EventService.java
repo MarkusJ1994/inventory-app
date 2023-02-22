@@ -11,4 +11,6 @@ public interface EventService {
 
     List<DomainEvent> getDomainEvents();
 
+    EventLog persistLog(EventLog log);
+
 }

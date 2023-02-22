@@ -1,11 +1,11 @@
 package com.example.inventory.domain.items.events;
 
 import com.example.inventory.aggregator.Step;
-import com.example.inventory.data.EventLogRepository;
 import com.example.inventory.domain.events.DomainEvent;
 import com.example.inventory.domain.events.EventQueueBase;
 import com.example.inventory.domain.items.aggregator.ItemEventAggregator;
 import com.example.inventory.domain.items.data.Item;
+import com.example.inventory.services.EventService;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayDeque;
@@ -17,8 +17,8 @@ public class ItemEventQueue extends EventQueueBase {
 
     private final ItemEventAggregator itemEventAggregator;
 
-    public ItemEventQueue(EventLogRepository eventLogRepository, ArrayDeque arrayDeque, ItemEventAggregator itemEventAggregator) {
-        super(arrayDeque, eventLogRepository);
+    public ItemEventQueue(EventService eventService, ArrayDeque arrayDeque, ItemEventAggregator itemEventAggregator) {
+        super(arrayDeque, eventService);
         this.itemEventAggregator = itemEventAggregator;
     }
 

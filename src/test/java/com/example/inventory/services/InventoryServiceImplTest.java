@@ -2,7 +2,6 @@ package com.example.inventory.services;
 
 import com.example.inventory.aggregator.Step;
 import com.example.inventory.data.EventLog;
-import com.example.inventory.data.EventLogRepository;
 import com.example.inventory.domain.events.DomainEvent;
 import com.example.inventory.domain.items.aggregator.ItemEventAggregator;
 import com.example.inventory.domain.items.data.Item;
@@ -21,20 +20,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.when;
 
 class InventoryServiceImplTest {
 
     private ItemEventQueue mock() {
-        EventLogRepository mockedRepository = Mockito.mock(EventLogRepository.class);
+        EventService mockedService = Mockito.mock(EventService.class);
 
-        Mockito.when(mockedRepository.save(Mockito.any())).thenReturn(new EventLog());
-        Mockito.when(mockedRepository.findAll()).thenReturn(new ArrayList<>());
+        when(mockedService.persistLog(any())).thenReturn(new EventLog());
+        when(mockedService.getEvents()).thenReturn(new ArrayList<>());
 
         ArrayDeque<DomainEvent> queue = new ArrayDeque<>();
         queue.add(new AddItemCommand("eventId1", new AddItemDto("milk", "dairy")));
         queue.add(new AddItemCommand("eventId2", new AddItemDto("butter", "dairy")));
 
-        return new ItemEventQueue(mockedRepository, queue, new ItemEventAggregator(new InventoryServiceImpl()));
+        return new ItemEventQueue(mockedService, queue, new ItemEventAggregator(new InventoryServiceImpl()));
     }
 
     @Test

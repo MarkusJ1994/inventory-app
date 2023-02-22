@@ -2,12 +2,12 @@ package com.example.inventory.domain.items.events;
 
 import com.example.inventory.aggregator.Step;
 import com.example.inventory.data.EventLog;
-import com.example.inventory.data.EventLogRepository;
 import com.example.inventory.domain.events.DomainEvent;
 import com.example.inventory.domain.items.aggregator.ItemEventAggregator;
 import com.example.inventory.domain.items.data.Item;
 import com.example.inventory.domain.items.dto.AddItemDto;
 import com.example.inventory.domain.items.services.InventoryServiceImpl;
+import com.example.inventory.services.EventService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -20,17 +20,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ItemEventQueueTest {
 
     private ItemEventQueue mock() {
-        EventLogRepository mockedRepository = Mockito.mock(EventLogRepository.class);
+        EventService mockedService = Mockito.mock(EventService.class);
 
-        Mockito.when(mockedRepository.save(Mockito.any())).thenReturn(new EventLog());
-        Mockito.when(mockedRepository.findAll()).thenReturn(new ArrayList<>());
+        Mockito.when(mockedService.persistLog(Mockito.any())).thenReturn(new EventLog());
+        Mockito.when(mockedService.getEvents()).thenReturn(new ArrayList<>());
 
         ArrayDeque<DomainEvent> queue = new ArrayDeque<>();
         queue.add(new AddItemCommand("eventId1", new AddItemDto("milk", "dairy")));
         queue.add(new AddItemCommand("eventId2", new AddItemDto("butter", "dairy")));
         queue.add(new AddItemCommand("eventId3", new AddItemDto("dn", "newspaper")));
 
-        return new ItemEventQueue(mockedRepository, queue, new ItemEventAggregator(new InventoryServiceImpl()));
+        return new ItemEventQueue(mockedService, queue, new ItemEventAggregator(new InventoryServiceImpl()));
     }
 
     @Test

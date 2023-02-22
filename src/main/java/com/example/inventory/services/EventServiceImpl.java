@@ -15,7 +15,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Service
-public class EventServiceImpl implements EventService {
+public class EventServiceImpl implements com.example.inventory.services.EventService {
 
     private final EventLogRepository eventLogRepository;
 
@@ -27,6 +27,11 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<DomainEvent> getDomainEvents() {
         return getEvents().stream().map(EventServiceImpl::logToDomainEvent).toList();
+    }
+
+    @Override
+    public EventLog persistLog(EventLog log) {
+        return eventLogRepository.save(log);
     }
 
     public static DomainEvent logToDomainEvent(EventLog eventLog) {
