@@ -1,18 +1,11 @@
 import {useQuery} from "react-query";
 import {QueryKeys} from "../queryKeys";
+import {Aggregation, Item} from "./types";
 
-interface EventLog {
-    timestamp: string
-    user: string
-    reason: string | null
-    command: string
-    data: any
-}
+function ItemAggregationLayout(): JSX.Element {
 
-function LogColumnLayout(): JSX.Element {
-
-    const query = useQuery<EventLog[], Error>([QueryKeys.EVENT_LOGS], () =>
-        fetch('/events').then(res => {
+    const query = useQuery<Aggregation<Item[], Item>[], Error>([QueryKeys.ITEM_AGGREGATION], () =>
+        fetch('/inventory/aggregation').then(res => {
                 return res.json()
             }
         )
@@ -22,7 +15,7 @@ function LogColumnLayout(): JSX.Element {
         query.refetch().then()
     }
 
-    const renderLogs = () => {
+    const renderSteps = () => {
         if (query.data != undefined) {
             return query.data.map((log, idx) => <pre style={{background: "lightgrey"}} key={idx}>{JSON.stringify(log, undefined, 2)}</pre>)
         }
@@ -30,8 +23,8 @@ function LogColumnLayout(): JSX.Element {
 
     return <div className={"col"}>
         <button onClick={onRefresh}>Refresh</button>
-        {renderLogs()}
+        {renderSteps()}
     </div>
 }
 
-export default LogColumnLayout
+export default ItemAggregationLayout

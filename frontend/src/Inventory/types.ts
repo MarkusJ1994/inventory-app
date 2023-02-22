@@ -3,3 +3,19 @@ export interface Item {
     name: string,
     category: string
 }
+
+export interface Event<T> {
+    payload: T
+    command: string
+}
+
+export interface Result {
+    result: boolean
+    info: string
+}
+
+export interface Aggregation<S, T> {
+    event: Event<T>
+    result: Result
+    state: S
+}

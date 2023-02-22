@@ -4,6 +4,7 @@
 
 .log-column {
     border-left: 1px solid;
+    flex-grow: 1;
     height: 100vh;
     padding: 1rem;
     overflow: auto;
@@ -24,13 +25,14 @@
 }
 
 .item-form-input {
-    border: 0px;
+    border: 0;
     background: transparent;
     font-family: monospace;
 }
 
 .items {
     display: flex;
+    flex-direction: column;
     flex-wrap: wrap;
     font-family: monospace;
     gap: 0.5rem

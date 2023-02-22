@@ -3,6 +3,7 @@ import {Item} from "./types";
 import ItemBox from "./ItemBox";
 import {useState} from "react";
 import LogColumnLayout from "../LogColumn/LogColumnLayout";
+import ItemAggregationLayout from "./ItemAggregationLayout";
 
 function InventoryLayout() {
 
@@ -15,7 +16,7 @@ function InventoryLayout() {
     }
 
     return <div className={"inventory-layout row"}>
-        <div className={"col"} style={{maxWidth: "70%", marginRight: "1rem"}}>
+        <div className={"col"} style={{maxWidth: "70%", marginRight: "1rem", flexGrow: "1"}}>
             <div className={"button-row"}>
                 <button onClick={onAddClicked} disabled={addItem != undefined}>Add</button>
             </div>
@@ -29,6 +30,7 @@ function InventoryLayout() {
             }
             <div><Inventory/></div>
         </div>
+        <div className={"col log-column"}><ItemAggregationLayout/></div>
         <div className={"col log-column"}><LogColumnLayout/></div>
     </div>
 }

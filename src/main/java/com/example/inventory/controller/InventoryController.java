@@ -1,6 +1,7 @@
 package com.example.inventory.controller;
 
 import com.example.inventory.aggregator.Step;
+import com.example.inventory.domain.items.data.Item;
 import com.example.inventory.domain.items.dto.AddItemDto;
 import com.example.inventory.domain.items.dto.ItemDto;
 import com.example.inventory.domain.items.dto.UpdateItemDto;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -28,7 +30,20 @@ public class InventoryController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Step<List<ItemDto>>>> getItems() {
+    public ResponseEntity<List<ItemDto>> getItems() {
+        //last step in chain is current state
+        Step<List<Item>> lastStep = eventQueue.fold()
+                .stream()
+                .reduce((f, s) -> s).orElse(null);
+
+        return ResponseEntity.ok(
+                lastStep != null ?
+                        lastStep.state().stream().map(InventoryService::itemToItemDto).toList()
+                        : new ArrayList<>());
+    }
+
+    @GetMapping("/aggregation")
+    public ResponseEntity<List<Step<List<ItemDto>>>> getAggregation() {
         return ResponseEntity.ok(
                 eventQueue.fold()
                         .stream()

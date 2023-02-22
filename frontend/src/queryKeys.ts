@@ -1,4 +1,5 @@
 export enum QueryKeys {
     ITEMS = "ITEMS",
+    ITEM_AGGREGATION = "ITEM_AGGREGATION",
     EVENT_LOGS = "EVENT_LOGS"
 }

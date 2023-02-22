@@ -6,24 +6,27 @@ import {QueryKeys} from "../queryKeys";
 
 function Inventory(): JSX.Element {
 
-    const {isLoading, error, data} = useQuery<Item[], Error>([QueryKeys.ITEMS], () =>
+    const {refetch, isLoading, error, data} = useQuery<Item[], Error>([QueryKeys.ITEMS], () =>
         fetch('/inventory').then(res => {
                 return res.json()
             }
-        )
+        ),
+        {enabled: false}
     )
 
     const renderItems = (items: Item[]) => {
         return items.map((item) => <ItemBox item={item} key={item.id}/>)
     }
 
-    if (isLoading) return <div>"Loading..."</div>
-
-    if (error) return <div>"Error occurred: " + error.message</div>
-
-    return <div className={"items"}>
-        {renderItems(data != null ? data : [])}
-    </div>
+    return <>
+        <button onClick={() => refetch()} style={{marginBottom: "1rem"}}>Load item state</button>
+        { isLoading ? <div>"Loading..."</div> :
+            error ? <div>"Error occurred: " + error.message</div> :
+                <div className={"items"}>
+                    {renderItems(data ?? [])}
+                </div>
+        }
+    </>
 
 }
 
