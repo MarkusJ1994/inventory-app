@@ -25,15 +25,16 @@ public class ItemEventAggregator implements Aggregator<List<Item>> {
      */
     @Override
     public <T> Step<List<Item>> aggregateStateFromEvents(DomainEvent<T> event, List<Step<List<Item>>> steps) {
-        return (switch (event) {
-            case AddItemCommand addItemCommand ->
-                    inventoryService.addItem(addItemCommand.payload(), Optional.empty(), Step.getMostRecentStep(steps));
-            case UpdateItemCommand updateItemCommand ->
-                    inventoryService.updateItem(updateItemCommand.payload().id(), updateItemCommand.payload().updateItemDto(), Step.getMostRecentStep(steps));
-            case DeleteItemCommand deleteItemCommand ->
-                    inventoryService.removeItem(deleteItemCommand.payload(), Step.getMostRecentStep(steps));
-            default -> throw new IllegalArgumentException("unhandled item command");
-        }).toStep(event);
+        //wanted to use preview pattern matching but maven couldn't play nice with it
+        if (event instanceof AddItemCommand addItemCommand) {
+            return inventoryService.addItem(addItemCommand.payload(), Optional.empty(), Step.getMostRecentStep(steps)).toStep(event);
+        } else if (event instanceof UpdateItemCommand updateItemCommand) {
+            return inventoryService.updateItem(updateItemCommand.payload().id(), updateItemCommand.payload().updateItemDto(), Step.getMostRecentStep(steps)).toStep(event);
+        } else if (event instanceof DeleteItemCommand deleteItemCommand) {
+            return inventoryService.removeItem(deleteItemCommand.payload(), Step.getMostRecentStep(steps)).toStep(event);
+        } else {
+            throw new IllegalArgumentException("unhandled item command");
+        }
     }
 
 }

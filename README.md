@@ -19,4 +19,6 @@ src
     - data
     - services
 
+Simple run docker-compose build and up for easy setup of db, backend and frontend.
+Then visit localhost:3000 in your browser
 
