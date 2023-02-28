@@ -4,6 +4,11 @@ export interface Item {
     category: string
 }
 
+export interface AddItem {
+    name: string,
+    category: string
+}
+
 export interface Event<T> {
     payload: T
     command: string

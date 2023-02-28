@@ -1,6 +1,6 @@
-import {Item} from "./types";
+import {AddItem, Item} from "./types";
 import TextField from "../Form/TextField";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {useMutation, useQueryClient} from "react-query";
 import {QueryKeys} from "../queryKeys";
 
@@ -51,7 +51,7 @@ function ItemBox({
         }
     })
 
-    const add = useMutation<Item, Error, Item>({
+    const add = useMutation<Item, Error, AddItem>({
         mutationFn: (itemToAdd) => {
             return fetch('/inventory', {
                 method: 'POST',
@@ -77,6 +77,10 @@ function ItemBox({
 
     const [itemState, setItemState] = useState(item)
 
+    useEffect(() => {
+        setItemState(item)
+    }, [item]);
+
     const [isEditMode, setIsEditMode] = useState(editMode)
 
     const onEdit = () => {
@@ -94,7 +98,10 @@ function ItemBox({
     }
 
     const onAdd = () => {
-        add.mutate(itemState)
+        add.mutate({
+            name: itemState.name,
+            category: itemState.category
+        })
     }
 
     return <div className={"item"}>
