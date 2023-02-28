@@ -11,7 +11,7 @@ interface LogEntryProps {
 function LogEntry({idx, log}: LogEntryProps): JSX.Element {
 
     const query = useQuery<Item[], Error>([QueryKeys.ITEMS], () =>
-            fetch('/inventory/fold/' + log.id).then(res => {
+            fetch('/api/inventory/fold/' + log.id).then(res => {
                     return res.json()
                 }
             ),

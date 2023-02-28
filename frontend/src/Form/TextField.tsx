@@ -15,7 +15,6 @@ function TextField({label, name, value, disabled, onChange}: TextFieldProps): JS
                    id={name}
                    disabled={disabled} value={value}
                    onChange={(evt) => {
-                       console.log(evt.currentTarget.value)
                        onChange(evt.currentTarget.value)
                    }}/><br/>
         </div>

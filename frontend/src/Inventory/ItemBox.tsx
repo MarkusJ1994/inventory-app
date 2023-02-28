@@ -16,62 +16,45 @@ function ItemBox({
     }
                  }: ItemProps): JSX.Element {
 
-    let queryClient = useQueryClient();
+    const queryClient = useQueryClient()
 
-    const update = useMutation<Item, Error, Item>({
+    const update = useMutation<void, Error, Item>({
         mutationFn: (changedItem) => {
-            return fetch('/inventory/' + changedItem.id, {
+            return fetch('/api/inventory/' + changedItem.id, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(changedItem)
-            }).then(res => {
+            }).then(() => {
                 setIsEditMode(false)
-                return res.json()
             })
         },
     })
 
-    const remove = useMutation<string, Error, string>({
+    const remove = useMutation<void, Error, string>( {
         mutationFn: (removedId) => {
-            return fetch('/inventory/' + removedId, {
+            return fetch('/api/inventory/' + removedId, {
                 method: 'DELETE',
-            }).then(() => removedId)
+            }).then(() => {})
         },
-        onSuccess: (removedId) => {
-            queryClient.setQueryData<Item[] | undefined>([QueryKeys.ITEMS], (items) => {
-                if (items != undefined) {
-                    const idxToRemove = items.findIndex(item => item.id === removedId);
-                    items.splice(idxToRemove, 1)
-                    return items
-                }
-                return items
-            })
-        }
     })
 
-    const add = useMutation<Item, Error, AddItem>({
+    const add = useMutation<void, Error, AddItem>( {
         mutationFn: (itemToAdd) => {
-            return fetch('/inventory', {
+            return fetch('/api/inventory', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(itemToAdd)
-            }).then(res => {
+            }).then(() => {
                 onAddSuccess()
-                return res.json()
             })
         },
-        onSuccess: (addedItem) => {
-            queryClient.setQueryData<Item[] | undefined>([QueryKeys.ITEMS], (items) => {
-                if (items != undefined) {
-                    items.push(addedItem)
-                    return items
-                }
-                return items
-            })
+        onSuccess: () => {
+            console.log("invalidate query")
+            queryClient.invalidateQueries([QueryKeys.ITEMS])
         }
     })
 
@@ -92,7 +75,7 @@ function ItemBox({
     }
 
     const onRemove = () => {
-        if (itemState.id != null) {
+        if (itemState.id !== null) {
             remove.mutate(itemState.id)
         }
     }

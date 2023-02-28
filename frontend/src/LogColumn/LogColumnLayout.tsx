@@ -6,7 +6,7 @@ import LogEntry from "./LogEntry";
 function LogColumnLayout(): JSX.Element {
 
     const query = useQuery<EventLog[], Error>([QueryKeys.EVENT_LOGS], () =>
-        fetch('/events').then(res => {
+        fetch('/api/events').then(res => {
                 return res.json()
             }
         )
@@ -18,7 +18,7 @@ function LogColumnLayout(): JSX.Element {
 
     const renderLogs = () => {
         if (query.data != undefined) {
-            return query.data.map((log, idx) => <LogEntry idx={idx} log={log}/>)
+            return query.data.map((log, idx) => <LogEntry idx={idx} log={log} key={idx}/>)
         }
     }
 
